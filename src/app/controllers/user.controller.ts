@@ -1,4 +1,5 @@
-import { Context, Delete, dependency, Get, HttpResponseCreated, HttpResponseNotFound, HttpResponseOK, Log, Patch, Post, ValidateBody } from '@foal/core';
+import { Context, Delete, dependency, Get, HttpResponseCreated, HttpResponseNotFound, HttpResponseOK, Log, Patch, Post, ValidateBody, ValidatePathParam, ValidateQueryParam } from '@foal/core';
+import { LogUserId } from '../hooks';
 import { UserService } from '../services';
 
 @Log('ApiController', {
@@ -12,6 +13,8 @@ export class UserController {
     userService: UserService;
 
     @Get('/:id')
+    @LogUserId()
+    @ValidatePathParam('id', { type: 'integer' })
     async getUserById(ctx: Context) {
         const user = this.userService.getUserById(ctx.request.params.id);
         if (!user) {
@@ -21,6 +24,7 @@ export class UserController {
     }
 
     @Get('/')
+    @ValidateQueryParam('name', { type: 'string' }, { required: false })
     async getUsersByName(ctx: Context) {
         const users = this.userService.getUsersByName(ctx.request.query.name);
         return new HttpResponseOK(await users);
@@ -43,6 +47,7 @@ export class UserController {
     }
 
     @Patch('/:id')
+    @ValidatePathParam('id', { type: 'integer' })
     async patchUser(ctx: Context) {
         const requestBody = ctx.request.body;
         const user = this.userService.updateUser(ctx.request.params.id, requestBody.name, requestBody.dob);
@@ -50,6 +55,7 @@ export class UserController {
     }
 
     @Delete('/:id')
+    @ValidatePathParam('id', { type: 'integer' })
     async deleteUser(ctx: Context) {
         this.userService.deleteUser(ctx.request.params.id);
         return new HttpResponseOK();

@@ -10,10 +10,13 @@ export class UserService {
         return user;
     }
     async getUsersByName(name: string) {
+        let users;
         if (!name) {
-            return null;
+            users = await User.find();
         }
-        const users = await User.find({ name: name });
+        else {
+            users = await User.find({ name: name });
+        }
         return users;
     }
     async createUser(name: string, dob: string) {

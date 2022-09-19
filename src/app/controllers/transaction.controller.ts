@@ -1,4 +1,4 @@
-import { Context, Delete, dependency, Get, HttpResponseCreated, HttpResponseNotFound, HttpResponseOK, Log, Patch, Post, ValidateBody } from '@foal/core';
+import { Context, Delete, dependency, Get, HttpResponseCreated, HttpResponseNotFound, HttpResponseOK, Log, Patch, Post, ValidateBody, ValidatePathParam, ValidateQueryParam } from '@foal/core';
 import { TransactionService } from '../services';
 
 @Log('ApiController', {
@@ -12,6 +12,7 @@ export class TransactionController {
     transactionSerice: TransactionService;
 
     @Get('/:id')
+    @ValidatePathParam('id', { type: 'integer' })
     async getTransactionById(ctx: Context) {
         const transaction = this.transactionSerice.getTransactionById(ctx.request.params.id);
         if (!transaction) {
@@ -21,6 +22,7 @@ export class TransactionController {
     }
 
     @Get('/')
+    @ValidateQueryParam('user_id', { type: 'integer' }, { required: true })
     async getTransactionsByUserId(ctx: Context) {
         const transactions = this.transactionSerice.getTransactionsByUserId(ctx.request.query.user_id);
         return new HttpResponseOK(await transactions);
@@ -48,6 +50,7 @@ export class TransactionController {
     }
 
     @Patch('/:id')
+    @ValidatePathParam('id', { type: 'integer' })
     async patchTransaction(ctx: Context) {
         const requestBody = ctx.request.body;
         const transaction = this.transactionSerice.updateTransaction(ctx.request.params.id, requestBody.userId, 
@@ -56,6 +59,7 @@ export class TransactionController {
     }
 
     @Delete('/:id')
+    @ValidatePathParam('id', { type: 'integer' })
     async deleteTransaction(ctx: Context) {
         this.transactionSerice.deleteTransaction(ctx.request.params.id);
         return new HttpResponseOK();
